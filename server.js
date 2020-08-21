@@ -17,8 +17,13 @@ app.get('/hello', (request, response) => {
   response.json({greetings: "Hello, API"});
 });
 
-app.post('/api/fileanalyse', upload.single('upfile'), (request, response) => {
+app.post('/api/fileanalyse', upload.single('upfile'), (request, response, error) => {
   const file = request.file;
+  if (error instanceof multer.MulterError) {
+    response.json({error: multer.MulterError});
+  } else if(!file){
+    response.json({error: "No file was uploaded"});
+  }
   response.json({file: file.originalname, size: file.size});
 });
 
