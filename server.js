@@ -1,21 +1,30 @@
 'use strict';
+const express = require('express');
+const cors = require('cors');
+const app = express();
 
-var express = require('express');
-var cors = require('cors');
-
-// require and use "multer"...
-
-var app = express();
+const multer = require('multer');
+const upload = multer();
 
 app.use(cors());
-app.use('/public', express.static(process.cwd() + '/public'));
+app.use('/public', express.static(`${process.cwd()}/public`));
 
-app.get('/', function (req, res) {
-     res.sendFile(process.cwd() + '/views/index.html');
-  });
+app.get('/', (request, response) => {
+     response.sendFile(`${process.cwd()}/views/index.html`);
+});
 
-app.get('/hello', function(req, res){
-  res.json({greetings: "Hello, API"});
+app.get('/hello', (request, response) => {
+  response.json({greetings: "Hello, API"});
+});
+
+app.post('/api/fileanalyse', upload.single('upfile'), (request, response, error) => {
+  const file = request.file;
+  if (error instanceof multer.MulterError) {
+    response.json({error: multer.MulterError});
+  } else if(!file){
+    response.json({error: "No file was uploaded"});
+  }
+  response.json({file: file.originalname, size: file.size});
 });
 
 app.listen(process.env.PORT || 3000, function () {
